@@ -3,11 +3,15 @@ import React from 'react';
 import { useColorScheme } from 'react-native';
 
 import { Colors } from '@/constants/theme';
+import { useDrizzleStudio } from 'expo-drizzle-studio-plugin';
+import { useSQLiteContext } from 'expo-sqlite';
 
 export default function AppTabs() {
   const scheme = useColorScheme();
   const colors = Colors[scheme === 'unspecified' ? 'light' : scheme];
 
+  const db = useSQLiteContext();
+  useDrizzleStudio(db);
   return (
     <NativeTabs
       backgroundColor={colors.background}
@@ -21,10 +25,10 @@ export default function AppTabs() {
         />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="explore">
-        <NativeTabs.Trigger.Label>Explore</NativeTabs.Trigger.Label>
+      <NativeTabs.Trigger name="create">
+        <NativeTabs.Trigger.Label>Criar</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
+          md="edit"
           renderingMode="template"
         />
       </NativeTabs.Trigger>
