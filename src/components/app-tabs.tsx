@@ -14,13 +14,13 @@ export default function AppTabs() {
   useDrizzleStudio(db);
   return (
     <NativeTabs
-      backgroundColor={colors.background}
+      backgroundColor={'#fff'}
       indicatorColor={colors.backgroundElement}
       labelStyle={{ selected: { color: colors.text } }}>
       <NativeTabs.Trigger name="index">
-        <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Label>Lista</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/home.png')}
+          md="list"
           renderingMode="template"
         />
       </NativeTabs.Trigger>

@@ -20,3 +20,9 @@ export const formatarHorario = (date: Date): string => {
 
   return `${horas}:${minutos}`; // "HH:MM"
 };
+
+// "YYYY-MM-DD" -> "DD/MM/YYYY"
+export const formatarStringDataParaExibicao = (data: string): string => {
+  const [ano, mes, dia] = data.split('-');
+  return `${dia}/${mes}/${ano}`;
+};

@@ -1,4 +1,4 @@
-import { SQLiteDatabase } from "expo-sqlite";
+import { SQLiteDatabase } from 'expo-sqlite';
 
 export const criarTabelas = async (db: SQLiteDatabase): Promise<void> => {
   await db.execAsync(`
@@ -19,7 +19,8 @@ export const criarTabelas = async (db: SQLiteDatabase): Promise<void> => {
     data_inclusao  TEXT DEFAULT (datetime('now')),
     data_alteracao TEXT DEFAULT NULL,
 
-    FOREIGN KEY (id_refeicao) REFERENCES refeicoes(id)
+    CONSTRAINT fk_refeicao                           
+      FOREIGN KEY (id_refeicao) REFERENCES refeicoes(id)
   );
 
   CREATE INDEX IF NOT EXISTS idx_data_registro ON registros_glicose(data_registro);

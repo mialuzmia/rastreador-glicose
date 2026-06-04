@@ -2,6 +2,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Refeicao } from '@/database/types';
 import { useRefeicao } from '@/hooks/use-refeicao';
 import { useRegistroGlicose } from '@/hooks/use-registro-glicose';
+import { useTheme } from '@/hooks/use-theme';
 import { globalStyles } from '@/styles/global';
 import {
   formatarDataParaBanco,
@@ -11,20 +12,14 @@ import {
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-  Keyboard,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native';
+import { Keyboard, Pressable, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 import { Button, Menu, TextInput } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Create = () => {
   const { buscarTodas } = useRefeicao();
   const { inserir, buscarTodos: buscarRegistros } = useRegistroGlicose();
+  const theme = useTheme();
 
   const [glicose, setGlicose] = useState<string>('');
   const [data, setData] = useState<string>(''); // "YYYY-MM-DD"
@@ -108,13 +103,23 @@ const Create = () => {
     });
   };
 
+  const onPressSelectRefeicoes = () => {
+    if (Keyboard.isVisible()) {
+      const inscricao = Keyboard.addListener('keyboardDidHide', () => {
+        setMenuVisivel(true);
+        inscricao.remove();
+      });
+      Keyboard.dismiss();
+    } else {
+      setMenuVisivel(true);
+    }
+  };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <ThemedView style={globalStyles.pageContainer}>
         <SafeAreaView style={globalStyles.safeArea}>
-          <View style={styles.formContainer}>
-            <Text>Criar registro</Text>
-
+          <View style={[styles.formContainer, { backgroundColor: theme.surfaceBright }]}>
             <TextInput
               mode="outlined"
               label="Glicose"
@@ -160,7 +165,7 @@ const Create = () => {
               onDismiss={() => setMenuVisivel(false)}
               anchorPosition="bottom"
               anchor={
-                <Pressable onPress={() => setMenuVisivel(true)}>
+                <Pressable onPress={() => onPressSelectRefeicoes()}>
                   <TextInput
                     mode="outlined"
                     label="Refeição"
@@ -181,7 +186,7 @@ const Create = () => {
             </Menu>
 
             <Button
-              style={{ marginTop: 8 }}
+              style={{ marginTop: 'auto', alignSelf: 'flex-end', paddingHorizontal: 4 }}
               icon="content-save"
               mode="contained"
               onPress={salvar}>
@@ -201,5 +206,8 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     gap: 8,
+    borderRadius: 12,
+    padding: 24,
+    marginTop: 16,
   },
 });
