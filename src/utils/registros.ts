@@ -2,7 +2,7 @@ import { RegistroGlicose } from '@/database/types';
 import { orderBy } from 'lodash-es';
 
 const ordenarPorHorario = (registros: RegistroGlicose[]): RegistroGlicose[] => {
-  return orderBy(registros, 'horario', 'asc');
+  return orderBy(registros, 'horario', 'desc');
 };
 
 export const agruparPorData = (registros: RegistroGlicose[]): Record<string, RegistroGlicose[]> => {

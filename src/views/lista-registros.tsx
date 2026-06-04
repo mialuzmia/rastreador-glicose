@@ -1,29 +1,54 @@
 import ItemRegistro from '@/components/item-registro';
-import { RegistroGlicose } from '@/database/types';
+import { Refeicao, RegistroGlicose } from '@/database/types';
+import { useRefeicao } from '@/hooks/use-refeicao';
 import { useRegistroGlicose } from '@/hooks/use-registro-glicose';
 import { useTheme } from '@/hooks/use-theme';
+import { exportarCSV, exportarPDF } from '@/utils/exportar';
 import { formatarStringDataParaExibicao } from '@/utils/formatadores';
 import { agruparPorData } from '@/utils/registros';
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { Button, List } from 'react-native-paper';
+import { useCallback, useEffect, useState } from 'react';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Button, List, Menu } from 'react-native-paper';
 
 const ListaRegistros = () => {
   const { buscarTodos } = useRegistroGlicose();
+  const { buscarTodas } = useRefeicao();
   const [registros, setRegistros] = useState<RegistroGlicose[]>([]);
+  const [refeicoes, setRefeicoes] = useState<Refeicao[]>([]);
   const [expandidos, setExpandidos] = useState<Set<string>>(new Set());
+  const [exportando, setExportando] = useState(false);
+  const [menuExportarVisivel, setMenuExportarVisivel] = useState(false);
   const theme = useTheme();
+
+  useEffect(() => {
+    buscarTodas().then((refeicoes) => {
+      setRefeicoes(refeicoes);
+    });
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
-      buscarTodos().then((dados) => {
-        setRegistros(dados);
-        const primeiraData = dados[0]?.data;
+      buscarTodos().then((registros) => {
+        setRegistros(registros);
+        const primeiraData = registros[0]?.data;
         setExpandidos(primeiraData ? new Set([primeiraData]) : new Set());
       });
     }, []),
   );
+
+  const exportar = async (tipo: 'pdf' | 'csv') => {
+    setMenuExportarVisivel(false);
+    setExportando(true);
+    try {
+      if (tipo === 'pdf') await exportarPDF(registros, refeicoes);
+      if (tipo === 'csv') await exportarCSV(registros, refeicoes);
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível exportar os registros.');
+    } finally {
+      setExportando(false);
+    }
+  };
 
   const toggleData = (data: string) => {
     setExpandidos((prev) => {
@@ -36,19 +61,43 @@ const ListaRegistros = () => {
   const agrupados = agruparPorData(registros);
   const datas = Object.keys(agrupados);
 
-  const exportar = () => {
-    console.log('exportar');
-  };
-
   return (
     <>
-      <Button
-        style={{ marginTop: 8, alignSelf: 'flex-end' }}
-        icon="download"
-        mode="contained"
-        onPress={exportar}>
-        Salvar
-      </Button>
+      <View style={{ alignSelf: 'flex-end' }}>
+        <Menu
+          visible={menuExportarVisivel}
+          onDismiss={() => setMenuExportarVisivel(false)}
+          anchorPosition="bottom"
+          anchor={
+            <Button
+              style={{ marginTop: 8, alignSelf: 'flex-end' }}
+              icon={exportando ? undefined : 'download'}
+              mode="contained"
+              onPress={() => setMenuExportarVisivel(true)}
+              disabled={exportando || registros.length === 0}>
+              {exportando ? (
+                <ActivityIndicator
+                  size={16}
+                  color="white"
+                />
+              ) : (
+                'Exportar'
+              )}
+            </Button>
+          }>
+          <Menu.Item
+            leadingIcon="file-pdf-box"
+            title="Exportar PDF"
+            onPress={() => exportar('pdf')}
+          />
+          <Menu.Item
+            leadingIcon="file-delimited"
+            title="Exportar CSV"
+            onPress={() => exportar('csv')}
+          />
+        </Menu>
+      </View>
+
       <ScrollView
         style={styles.scrollContainer}
         contentContainerStyle={styles.scrollContent}>
