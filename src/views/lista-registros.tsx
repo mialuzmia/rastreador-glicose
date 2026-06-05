@@ -3,7 +3,7 @@ import { Refeicao, RegistroGlicose } from '@/database/types';
 import { useRefeicao } from '@/hooks/use-refeicao';
 import { useRegistroGlicose } from '@/hooks/use-registro-glicose';
 import { useTheme } from '@/hooks/use-theme';
-import { exportarCSV, exportarPDF } from '@/utils/exportar';
+import { AcaoExportar, exportarCSV, exportarPDF, TipoArquivoExportar } from '@/utils/exportar';
 import { formatarStringDataParaExibicao } from '@/utils/formatadores';
 import { agruparPorData } from '@/utils/registros';
 import { useFocusEffect } from 'expo-router';
@@ -37,12 +37,12 @@ const ListaRegistros = () => {
     }, []),
   );
 
-  const exportar = async (tipo: 'pdf' | 'csv') => {
+  const exportar = async (tipo: TipoArquivoExportar, modo: AcaoExportar) => {
     setMenuExportarVisivel(false);
     setExportando(true);
     try {
-      if (tipo === 'pdf') await exportarPDF(registros, refeicoes);
-      if (tipo === 'csv') await exportarCSV(registros, refeicoes);
+      if (tipo === 'pdf') await exportarPDF(registros, refeicoes, modo);
+      if (tipo === 'csv') await exportarCSV(registros, refeicoes, modo);
     } catch (error) {
       Alert.alert('Erro', 'Não foi possível exportar os registros.');
     } finally {
@@ -87,13 +87,23 @@ const ListaRegistros = () => {
           }>
           <Menu.Item
             leadingIcon="file-pdf-box"
-            title="Exportar PDF"
-            onPress={() => exportar('pdf')}
+            title="Baixar PDF"
+            onPress={() => exportar('pdf', 'download')}
+          />
+          <Menu.Item
+            leadingIcon="share-variant"
+            title="Compartilhar PDF"
+            onPress={() => exportar('pdf', 'compartilhar')}
           />
           <Menu.Item
             leadingIcon="file-delimited"
-            title="Exportar CSV"
-            onPress={() => exportar('csv')}
+            title="Baixar CSV"
+            onPress={() => exportar('csv', 'download')}
+          />
+          <Menu.Item
+            leadingIcon="share-variant"
+            title="Compartilhar CSV"
+            onPress={() => exportar('csv', 'compartilhar')}
           />
         </Menu>
       </View>

@@ -18,7 +18,7 @@ const ItemRegistro = ({ registro }: ItemRegistroProps) => {
           icon="clock-outline"
           compact
           mode="outlined">
-          {registro.horario}
+          {registro.horario.split(':').slice(0, 2).join(':')}
         </Chip>
         <Chip
           icon="silverware-fork-knife"
